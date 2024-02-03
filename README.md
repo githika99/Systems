@@ -5,11 +5,26 @@ provides a get/set memory abstraction for files in a Linux directory
 creates the executable memory
 
 ## Use:
-make all - produces the memory binary
-make memory - produces the memory binary
-make clean - removes all .o and binary files
-make format - clang-formats memory.c
+### make all - produces the memory binary
+### make memory - produces the memory binary
+### make clean - removes all .o and binary files
+### make format - clang-formats memory.c
+
+### Example Input:
+##### ./memory < input.txt
+
+### Contents of input.txt for a set command
+set<br>
+[output file]<br>
+[# of bytes you want]<br>
+[content you want to but into output file]<br>
+### This will set the frist # of bytes of contents to output file 
+
+### Contents of input.txt for a get command 
+get<br>
+[output file]<br>
+### This will output the contents of get to stdout
+
 
 ### Author: Githika Annapureddy
-### Assignment: Asgn 1
 ### Date: 1/20/2024
