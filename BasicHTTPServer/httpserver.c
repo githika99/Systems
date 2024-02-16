@@ -157,12 +157,14 @@ int put(Request *request, int length) {
     }
 
     //2. read rest of input here, and write in a loop -> do not store read and write from buffer then clear like in asgn1
+    int total = length;
     int read_result = 0;
     write_result = 0;
     do { //works but buffer is not rewritten each time (contains last input,
         char buffer
             [SIZE2]; //but it doens't matter this time since we're not doing anything with the buffer)
         read_result = my_read_n_bytes(request->fd, buffer, SIZE2); //read from file
+        total += read_result;
         if (read_result == -1) {
             printf("\nread= -1, calling response(500)");
             response(request, 500);
@@ -176,11 +178,11 @@ int put(Request *request, int length) {
         length += write_result;
     } while (read_result > 0);
 
-    // if (request->len_msg != write_result){
-    //     //Content-Length does not match     //DOUBLE CHECK IN SLACK if
-    //     fprintf("Content-length and write_result not same size");
-    //     return response(request, 400);
-    // }
+    if (request->len_msg != total) {
+        //Content-Length does not match
+        printf("Content-length and write_result not same size");
+        return response(request, 400);
+    }
 
     close(fd);
     if (file_exists)
@@ -415,7 +417,7 @@ int process(Request *request, char *string, int length) {
 
 //sets up server, calls buffer_processing function, frees request,
 int main(int argc, char **argv) {
-    //("\n Entered main function of http server");
+    //printf("\n Entered main function of http server");
 
     if (argc != 2) {
         printf("Incorrect Usage");
@@ -472,7 +474,7 @@ int main(int argc, char **argv) {
         //printf("calling parsing function with buffer : %s", buffer);
         process(&request, buffer, read_result);
         //read_result stores the length of buffer, since we're using binary data and cannot check for it using strlen()
-
+        free(buffer);
         char new_buffer[SIZE2];
         //works but buffer is not rewritten each time (contains last input, but it doens't matter this time since we're not doing anything with the buffer)
         // Read rest of file here -- there would be left over if get() and msg or error occured
