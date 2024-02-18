@@ -41,7 +41,6 @@ void create_request(Request *req) {
 }
 
 void free_request(Request *req) {
-    //printf("In free request\n");
     if (req != NULL) {
         free(req->method);
         free(req->uri);
@@ -72,7 +71,6 @@ int my_read_n_bytes(int fd, char buffer[], int n) {
 
 //outputs response to server of appropriate status-code using a switch statement
 int response(Request *request, int status_code) {
-    //printf("\n Request called with status code: %d\n", status_code);
     int write_result;
     char *msg;
 
@@ -141,7 +139,6 @@ int response(Request *request, int status_code) {
 }
 
 int put(Request *request, int length) {
-    //printf("\nput() entered");
     bool file_exists = true;
     if (access(request->uri, F_OK) != 0) //if file dne
         file_exists = false;
@@ -191,8 +188,6 @@ int put(Request *request, int length) {
 }
 
 int get(Request *request) {
-    //printf("\nget() entered");
-
     int fd = open(request->uri, O_RDONLY, 0000);
     if (fd == -1) {
         printf("%s could not open, calling 403 error", request->uri);
@@ -200,7 +195,6 @@ int get(Request *request) {
         fprintf(stderr, "Error opening file: %s\n", strerror(errno));
         return response(request, 403); //incorect permissions
     }
-    //printf("%s opened successfully", request->uri);
     int read_result = 0;
     int file_size = 0;
 
@@ -209,12 +203,9 @@ int get(Request *request) {
     if (stat(request->uri, &file_status) < 0) //did not work
         file_size = -1;
     file_size = file_status.st_size;
-    //printf("%s has size %d", request->uri, file_size);
-    //do not call response, do it yourself here
     int msg_length = snprintf(NULL, 0, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n", file_size);
     char *msg = malloc(msg_length + 1);
     sprintf(msg, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n", file_size);
-    //printf("\nSupposed to write %s to server", msg);
 
     int write_result = write_n_bytes(request->fd, msg, strlen(msg));
     if (write_result == -1) {
@@ -223,7 +214,6 @@ int get(Request *request) {
         response(request, 500);
     }
 
-    //printf("\nSTARTing loop to read from fd and writing to server");
     do { //works but buffer is not rewritten each time (contains last input,
         char buffer
             [SIZE2]; //but it doens't matter this time since we're not doing anything with the buffer)
@@ -242,7 +232,6 @@ int get(Request *request) {
             response(request, 500);
         }
     } while (read_result > 0);
-    //printf("\nENDing loop to read from fd and writing to server\n");
 
     close(fd);
     free(msg);
@@ -254,7 +243,6 @@ int get(Request *request) {
 // parameter type: 0 = request line, or 1 = header field
 int parsing_function(
     Request *request, const char *request_string, const char *request_expr, int type) {
-    //printf("\n String passed to parsing_funct is '%s'", request_string);
     regex_t re_object;
     int result = regcomp(&re_object, request_expr, REG_EXTENDED | REG_NEWLINE);
 
@@ -331,7 +319,6 @@ int parsing_function(
 }
 
 int process(Request *request, char *string, int length) {
-    //printf("\nEnetered process() with string: '%s'\n", string);
     int curr;
     //const char *request_expr = "^([a-zA-Z]{0,8}) ([a-zA-Z0-9.-]{2,64}) (HTTP/[0-9].[0-9])\n(([a-zA-Z0-9.-]{1,128}):([ -~]{0,128})\n)*\n(?:.*)$";
 
@@ -417,8 +404,6 @@ int process(Request *request, char *string, int length) {
 
 //sets up server, calls buffer_processing function, frees request,
 int main(int argc, char **argv) {
-    //printf("\n Entered main function of http server");
-
     if (argc != 2) {
         printf("Incorrect Usage");
         return 1;
@@ -443,7 +428,6 @@ int main(int argc, char **argv) {
         printf("Could not intialize socket");
         return 1;
     }
-    //printf("\n Listener socket initialized");
 
     while (1) {
         int fd = listener_accept(&sock);
@@ -451,16 +435,13 @@ int main(int argc, char **argv) {
             printf("Could not accept socket");
             return 1;
         }
-        //printf("\n Listener socket accepted: connection established");
 
         Request request;
         create_request(&request);
         request.fd = fd;
 
-        //deleted a memset right here, so may be extra chars in buffer, but they aren't added to msg or processed
         char *buffer = calloc(
             SIZE, sizeof(char)); //maybe use malloc bc binary data dont wanna initialize to 0
-        //printf("\ncalling read until");
         int read_result = read_until(fd, buffer, SIZE, "\r\n\r\n");
         if (read_result == -1) {
             printf("\nread= -1");
@@ -468,30 +449,22 @@ int main(int argc, char **argv) {
             if (read_error != 11) //errno of 11 means timeout
                 response(&request, 500);
         }
-        //printf("\nRead reuslt is %d", read_result);
-        //printf("\nbuffer is '%s'", buffer);
 
-        //printf("calling parsing function with buffer : %s", buffer);
         process(&request, buffer, read_result);
         //read_result stores the length of buffer, since we're using binary data and cannot check for it using strlen()
         free(buffer);
         char new_buffer[SIZE2];
         //works but buffer is not rewritten each time (contains last input, but it doens't matter this time since we're not doing anything with the buffer)
         // Read rest of file here -- there would be left over if get() and msg or error occured
-        //printf("\nStarting loop to get remaining bytes");
         do {
             read_result = my_read_n_bytes(request.fd, new_buffer, SIZE2);
             if (read_result == -1) {
                 printf("\nread= -1, calling response(500)");
                 //response(&request, 500);
             }
-            //printf("\n Reading left over bytes. read : '%s'", new_buffer);
         } while (read_result > 0);
-        //printf("\nFinished loop to get remaining bytes\n");
-        //printf("\ncalled close(fd)");
         close(request.fd);
 
-        //printf("\ncalling free_request\n");
         free_request(&request);
 
         fflush(stdout);
@@ -499,128 +472,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
-/*
-PSUEDOCODE for whole thing
-
-Request Struct w/ fields:
-    char Reuqest_Line[8];
-    list of char Header_Field[128 + 128]    
-    char* filename;                             //not set until parsing_function()
-    int length_of_message_body;
-    char* Message_Body;                         //allocate size based on content-length #
-
-int response(int status-code):
-    - outputs response to server of appropriate status-code
-    - use a switch statement
-    - probably calls other functions
-
-int get(* Request r):
-    - checks if file exsists
-      - call response(404) and return
-    - check if file has correct permissions
-        - call response(403) and return
-    
-    char buffer[2048];
-    - use read loop from get() asgn 1 to read contents of file into buffer
-
-    - if successful, call response(200) pass in buffer somehow (struct or parameter)
-
-int put(* Request r):
-    - same as set() but read in whole msg (already parsed in main()) in asgn 1
-        - if file exists, but incorrect permissions
-            - call response(403) and return
-        - open file with truncate
-        - write to file using write()
-    - if file exists, call response(200) 
-    - if file does not exist, call response(201)
-
-int parsing_function (* Request r):
-    - uses regex to make sure r is of correct format. (else return 400)
-    - check for HTTP 1.1, GET, SET, or neither
-    - sets filename field of Request Struct if request is appropriate
-    - summary returns dif #s for dif inputs:
-        505 if HTTP version is not 1.1
-        501 if Method is not GET or PUT
-        0 if Method is GET and argument valid
-        1 if Method is PUT and argument valid
-        400 for other invalid message
-
-read function: my_read_n_bytes()
-    - reads in n bytes or as much as it can
-
-main:
-    - in a loop 
-        - read port # using arcv[1]
-            - if no number first argument not number, --> not sure ask
-            - make into an integer
-            - make sure port # is in appropriate range
-        
-        - set up server using int listener_init(Listener_Socket *sock, int port)
-
-        - use int listener_accept(Listener_Socket *sock); to establish a connection to sock
-
-        - read in command ()
-
-        - parse in command (whole command is <= 2048) (use )
-            - read commands in a loop, when \r\n encountered if count = 0, add buffer to Request_Line field of struct
-            - when \r\n encountered, if count != 0, add buffer to Header_Field (count -1 = index to add it to in array of struct)
-            - if you see content-length:#\r\n store that number
-            - after you encounter \r\n\r\n, read # bytes, (initialized to 0 if no content-length)
-            - in another loop for # bytes
-                - when done, add this last buffer to Message_Body field of struct
-            
-        - int result = parsing_function (* Request r);
-        - if result 505, 501, or 400
-            - call response(result) to give appropriate response to server
-
-        -  if result 0, call get(* Request r)
-        -  if result 1, call put(* Request r)
-
-        - read rest of bytes in server (to make sure they are not read as start of another connection)
-
-        - close (fd)
-
-*/
-
-/*
-Steps: put (easy)
-1. write put function for buffer
-2. make it work for Request parameter 
-3. Check msg agsinst conent length in put()
-    a. if content-length <= msg its ok
-    b. if content-length > msg, return response(404) 
-
-
-Steps: get (easy)
-1. write get function for buffer
-2. make it work for Request parameter 
-
-Steps:
-1. test with curl
-2. check test cases
-
-Done:
-Steps: regex
-1. make regex work for a regular string
-2. take in all of their inputs and test
-3. make a Reuqest struct
-4. in main, put info into Request struct and try to parse through regex fucnt
-5. call proper response values for errors in parsing
-6. make regex work for returns 
-
-Steps: server
-1. make echo server work 
-
-Steps: server
-1. make server spit out responses in main
-2. write response
-*/
-
-/*
-Regex notes:
-- how to store each regex subexpression
-
-Assumptions:
-- we will be given all of the command at once
-*/
