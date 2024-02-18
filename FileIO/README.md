@@ -25,6 +25,10 @@ get<br>
 [output file]<br>
 ### This will output the contents of get to stdout
 
+## Testing
+./test_repo.sh to run all tests<br>
+./test_scripts/test_name.sh to run that particular test <br>
+
 
 ### Author: Githika Annapureddy
 ### Date: 1/20/2024
