@@ -25,19 +25,14 @@ bool is_filename(char *filename) {
     size_t length = strlen(filename);
     if (length > PATH_MAX)
         return false;
-    //for(size_t i = 0; i < length; i++){                 //isn't doing anything bc strtok parses until it reaches a null character. so a null character would not be in the filename.
-    //    if (ord(filename[i]) == 0)                   //if its a null character
-    //        return false;
-    //}
     return true;
 }
 
 //checks if the file exists in the current working directory
 bool file_exist(char *filename, int w) {
-    //no write
+    //w = 0 if file_exist is called by get(), w = 1 if file_exist is called by set()
     if (w == 0 && access(filename, R_OK) == 0) //file exists and has read permissions enabled
         return true;
-    //yes write
     else if (w == 1 && access(filename, W_OK) == 0)
         return true;
     return false;
@@ -45,10 +40,8 @@ bool file_exist(char *filename, int w) {
 
 //write first total_bytes of what is in buffer to filename
 //buffer may be partway used, carry p (where buffer is, into this)
-//TODO: do not read /0 character from first remaining buffer read
-//i think call handles this bc strlen(buffer + byte) counts chars until but not including the '/0'
+//does not read /0 character from first remaining buffer read bc strlen(buffer + byte) counts chars until but not including the '/0'
 int set(char filename[], char buffer[], int remaining_bytes_first_buffer, int total_bytes) {
-    //may be a problem with buffer in parameter and buffer in read() funct
     char *okay = "OK\n";
     int remaining_bytes = 0;
     int bytes_to_write = remaining_bytes_first_buffer;
@@ -98,7 +91,7 @@ int set(char filename[], char buffer[], int remaining_bytes_first_buffer, int to
 
     int w = write(1, okay, strlen(okay)); //write 'OK' to filename
     if (w == -1)
-        return error_msg("Operation Failed\n"); //unnecessary error message?
+        return error_msg("Operation Failed\n"); 
     return 0;
 }
 
@@ -141,13 +134,6 @@ int get(char *filename) {
 }
 
 int main(void) {
-    /*
-    char filename[PATH_MAX + 1] = "examle3.txt";
-    char buffer[PATH_MAX + 20] = "this is the text I want to write\n";
-    printf("calling set\n");
-    set(filename, buffer, strlen(buffer));
-    */
-
     int count = 0;
     int total_bytes = 0;
     int s = 0;
