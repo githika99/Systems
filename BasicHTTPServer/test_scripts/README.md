@@ -1,22 +1,9 @@
-### Assignment 2 tests
+### Unit tests
 
-This directory contains tests and utilities for you to work on your
+This directory contains tests and utilities for the
 http server.
 
-#### Utilities
-
-This directory contains a single utility for you to use: `cse130_nc`.
-This utility allows you to control the bytes that a client sends to
-your server; it will help you with creating and testing invalid
-commands.  The usage model is similar to the `nc` utility; see the
-assignment document for details on how to use it.
-
 #### Basic Tests
-
-We released a few tests that mimic the examples found in your
-assignment doc.  These cover basic functionality, but are no where
-near thorough enough to evaluate whether your server works in a
-majority of cases. We list what they do here:
 
 * get_asmall.sh: sends a get request for a small file (the lyrics to
   Taylor Swift's Antihero).  Validates that the correct status code
