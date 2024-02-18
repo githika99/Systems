@@ -1,7 +1,6 @@
 /*
 Githika Annapureddy
 CruzId: gannapur
-Assignment: pa2
 */
 #include <stdio.h>
 #include <stdlib.h>
