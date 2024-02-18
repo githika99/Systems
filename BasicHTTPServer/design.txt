@@ -1,0 +1,118 @@
+PSUEDOCODE for whole thing
+
+Request Struct w/ fields:
+    char Reuqest_Line[8];
+    list of char Header_Field[128 + 128]    
+    char* filename;                             //not set until parsing_function()
+    int length_of_message_body;
+    char* Message_Body;                         //allocate size based on content-length #
+
+int response(int status-code):
+    - outputs response to server of appropriate status-code
+    - use a switch statement
+    - probably calls other functions
+
+int get(* Request r):
+    - checks if file exsists
+      - call response(404) and return
+    - check if file has correct permissions
+        - call response(403) and return
+    
+    char buffer[2048];
+    - use read loop from get() asgn 1 to read contents of file into buffer
+
+    - if successful, call response(200) pass in buffer somehow (struct or parameter)
+
+int put(* Request r):
+    - same as set() but read in whole msg (already parsed in main()) in asgn 1
+        - if file exists, but incorrect permissions
+            - call response(403) and return
+        - open file with truncate
+        - write to file using write()
+    - if file exists, call response(200) 
+    - if file does not exist, call response(201)
+
+int parsing_function (* Request r):
+    - uses regex to make sure r is of correct format. (else return 400)
+    - check for HTTP 1.1, GET, SET, or neither
+    - sets filename field of Request Struct if request is appropriate
+    - summary returns dif #s for dif inputs:
+        505 if HTTP version is not 1.1
+        501 if Method is not GET or PUT
+        0 if Method is GET and argument valid
+        1 if Method is PUT and argument valid
+        400 for other invalid message
+
+read function: my_read_n_bytes()
+    - reads in n bytes or as much as it can
+
+main:
+    - in a loop 
+        - read port # using arcv[1]
+            - if no number first argument not number, --> not sure ask
+            - make into an integer
+            - make sure port # is in appropriate range
+        
+        - set up server using int listener_init(Listener_Socket *sock, int port)
+
+        - use int listener_accept(Listener_Socket *sock); to establish a connection to sock
+
+        - read in command ()
+
+        - parse in command (whole command is <= 2048) (use )
+            - read commands in a loop, when \r\n encountered if count = 0, add buffer to Request_Line field of struct
+            - when \r\n encountered, if count != 0, add buffer to Header_Field (count -1 = index to add it to in array of struct)
+            - if you see content-length:#\r\n store that number
+            - after you encounter \r\n\r\n, read # bytes, (initialized to 0 if no content-length)
+            - in another loop for # bytes
+                - when done, add this last buffer to Message_Body field of struct
+            
+        - int result = parsing_function (* Request r);
+        - if result 505, 501, or 400
+            - call response(result) to give appropriate response to server
+
+        -  if result 0, call get(* Request r)
+        -  if result 1, call put(* Request r)
+
+        - read rest of bytes in server (to make sure they are not read as start of another connection)
+
+        - close (fd)
+
+
+Steps: put (easy)
+1. write put function for buffer
+2. make it work for Request parameter 
+3. Check msg agsinst conent length in put()
+    a. if content-length <= msg its ok
+    b. if content-length > msg, return response(404) 
+
+
+Steps: get (easy)
+1. write get function for buffer
+2. make it work for Request parameter 
+
+Steps:
+1. test with curl
+2. check test cases
+
+Done:
+Steps: regex
+1. make regex work for a regular string
+2. take in all of their inputs and test
+3. make a Reuqest struct
+4. in main, put info into Request struct and try to parse through regex fucnt
+5. call proper response values for errors in parsing
+6. make regex work for returns 
+
+Steps: server
+1. make echo server work 
+
+Steps: server
+1. make server spit out responses in main
+2. write response
+
+Regex notes:
+- how to store each regex subexpression
+
+Assumptions:
+- we will be given all of the command at once
