@@ -23,6 +23,10 @@ curl http://localhost:1234/foo.txt -T messagebody.txt<br>
 Using curl, you would make the same GET request with this format:<br>
 curl http://localhost:1234/foo.txt<br>
 
+## Testing
+./test_repo.sh to run all tests<br>
+./test_scripts/test_name.sh to run that particular test <br>
+
 
 ### Author: Githika Annapureddy
 ### Date: 2/05/2024
