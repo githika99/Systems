@@ -1,4 +1,4 @@
-EXECBINS = queue_test rwlock_test
+EXECBINS = rwlock_test
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:%.c=%.o)
@@ -9,10 +9,7 @@ LFLAGS   = -lpthread
 
 .PHONY: all clean
 
-all: queue.o rwlock.o
-
-queue.o: queue.c queue.h
-	$(CC) $(CFLAGS) -o $@ -c $<
+all: rwlock.o
 
 rwlock.o: rwlock.c rwlock.h
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -27,9 +24,6 @@ format:
 	clang-format -i -style=file $(SOURCES)
 clean:
 	rm -f $(EXECBIN) $(OBJECTS)
-
-checkMemoryQueue: 
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s ./queue
 
 checkMemoryRWLock: 
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -s ./rwlock
