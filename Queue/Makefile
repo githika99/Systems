@@ -9,7 +9,7 @@ LFLAGS   = -lpthread
 
 .PHONY: all clean
 
-all: queue.o rwlock.o
+all: queue.o
 
 queue.o: queue.c queue.h
 	$(CC) $(CFLAGS) -o $@ -c $<
