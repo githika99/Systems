@@ -11,8 +11,8 @@ make clean - removes all .o and binary files<br>
 make format - clang-formats httpserver.c<br>
 
 ## Notes:
-The List ADT I am using was written by me in Fall 2023 for CSE 101. I did make changes to it to support two data fields. I also deleted and added funcitons accordingly. 
+The List ADT I am using was written by me in Fall 2023 for CSE 101. I did make changes to it to support two data fields. I also deleted and added funcitons accordingly. <br>
+I am also using the Queue and RWLock that I developed for other assignments in CSE 130. 
 
 ### Author: Githika Annapureddy
-### Assignment: Asgn 4
 ### Date: 3/05/2024
